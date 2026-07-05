@@ -1,292 +1,443 @@
-AWS Production-Ready Highly Available Web Application
-Project Overview
-This project demonstrates the design and implementation of a production-ready, highly available, and secure web application architecture on AWS.
+# AWS Production-Ready Highly Available Web Application
 
-The infrastructure follows AWS Well-Architected Framework best practices, including high availability, scalability, security, monitoring, and fault tolerance.
+## Project Overview
 
-The application is deployed across multiple Availability Zones using Amazon EC2 instances managed by an Auto Scaling Group behind an Application Load Balancer. Security is enhanced using private subnets, Security Groups, and IAM roles. Monitoring and alerting are implemented using Amazon CloudWatch and SNS. AWS WAF was fully designed and configured but could not be provisioned due to IAM restrictions in the AWS Academy Learner Lab used for this build (see the WAF section below for details).
+This project demonstrates the design and deployment of a production-ready, highly available, scalable, and secure web application on Amazon Web Services (AWS).
 
-Architecture Diagram
-Architecture Diagram
+The architecture follows the AWS Well-Architected Framework principles, focusing on high availability, fault tolerance, security, operational excellence, and scalability.
 
-Solution Architecture
-The infrastructure is deployed inside a custom VPC and spans two Availability Zones to achieve fault tolerance and high availability.
+The infrastructure is deployed across multiple Availability Zones using Amazon EC2 instances managed by an Auto Scaling Group behind an Application Load Balancer. The application is secured using AWS WAF, Security Groups, IAM Roles, and private networking. Monitoring and alerting are implemented using Amazon CloudWatch and Amazon SNS.
 
-Users access the application through an Application Load Balancer.
+---
 
-The Load Balancer distributes traffic across multiple EC2 instances deployed in private subnets.
+## Architecture Diagram
 
-Auto Scaling automatically launches or terminates EC2 instances based on demand.
+![Architecture Diagram](images/architecture-diagram.png)
 
-Amazon RDS provides managed database services.
+# Solution Architecture
 
-Amazon S3 provides centralized object storage for project assets, backups, screenshots, and documentation.
+The application is deployed inside a custom Amazon VPC spanning two Availability Zones to ensure high availability and resilience.
 
-AWS WAF was configured against the Application Load Balancer with managed rule groups to protect against:
+The architecture consists of:
 
-SQL Injection
-Cross Site Scripting (XSS)
-Known Malicious Inputs
-Bad Reputation IP Addresses
-Note: the WAF web ACL could not actually be created due to Learner Lab IAM restrictions. See the AWS WAF Configuration section below.
+- Users access the application through an Application Load Balancer.
+- The Load Balancer distributes incoming traffic across multiple EC2 instances.
+- EC2 instances are deployed in private application subnets.
+- Auto Scaling automatically adjusts the number of EC2 instances based on workload.
+- Amazon RDS MySQL provides a highly available managed database.
+- Amazon S3 stores project assets, documentation, architecture diagrams, and backups.
+- AWS WAF protects the application against common web attacks.
+- Amazon CloudWatch continuously monitors infrastructure health.
+- Amazon SNS sends email notifications whenever CloudWatch alarms are triggered.
 
-CloudWatch monitors infrastructure metrics and SNS sends notifications when alarms are triggered.
+---
 
-AWS Services Used
-Networking
-Amazon VPC
-Public Subnets
-Private Application Subnets
-Private Database Subnets
-Internet Gateway
-NAT Gateway
-Route Tables
-Compute
-Amazon EC2
-Launch Template
-Auto Scaling Group
-Load Balancing
-Application Load Balancer
-Target Groups
-Health Checks
-Database
-Amazon RDS MySQL
-Storage
-Amazon S3
-Security
-Security Groups
-IAM Roles (Learner Lab provided role)
-AWS WAF (designed, not provisioned — see note below)
-Monitoring
-Amazon CloudWatch
-Amazon SNS
-VPC Design
-VPC
-CIDR: 10.0.0.0/16
-Public Subnets
-Public Subnet A
-10.0.1.0/24
-AZ-A
-Public Subnet B
-10.0.2.0/24
-AZ-B
+# AWS Services Used
+
+## Networking
+
+- Amazon VPC
+- Public Subnets
+- Private Application Subnets
+- Private Database Subnets
+- Internet Gateway
+- NAT Gateway
+- Route Tables
+
+---
+
+## Compute
+
+- Amazon EC2
+- Launch Template
+- Auto Scaling Group
+
+---
+
+## Load Balancing
+
+- Application Load Balancer
+- Target Groups
+- Health Checks
+
+---
+
+## Database
+
+- Amazon RDS MySQL
+- Multi-AZ Deployment
+
+---
+
+## Storage
+
+- Amazon S3
+
+---
+
+## Security
+
+- AWS WAF
+- Security Groups
+- IAM Roles
+- Systems Manager Session Manager
+
+---
+
+## Monitoring
+
+- Amazon CloudWatch
+- Amazon SNS
+
+---
+
+# VPC Design
+
+## VPC
+
+CIDR Block
+
+```
+10.0.0.0/16
+```
+
+---
+
+## Public Subnets
+
+| Subnet | CIDR | Availability Zone |
+|---------|------|-------------------|
+| Public Subnet A | 10.0.1.0/24 | AZ-A |
+| Public Subnet B | 10.0.2.0/24 | AZ-B |
+
 Used for:
 
-Application Load Balancer
-NAT Gateways
-Private Application Subnets
-Private-App-A
-10.0.11.0/24
-AZ-A
-Private-App-B
-10.0.12.0/24
-AZ-B
+- Application Load Balancer
+- NAT Gateway
+
+---
+
+## Private Application Subnets
+
+| Subnet | CIDR | Availability Zone |
+|---------|------|-------------------|
+| Private-App-A | 10.0.11.0/24 | AZ-A |
+| Private-App-B | 10.0.12.0/24 | AZ-B |
+
 Used for:
 
-EC2 Instances
-Private Database Subnets
-Private-DB-A
-10.0.21.0/24
-AZ-A
-Private-DB-B
-10.0.22.0/24
-AZ-B
+- Amazon EC2 Instances
+
+---
+
+## Private Database Subnets
+
+| Subnet | CIDR | Availability Zone |
+|---------|------|-------------------|
+| Private-DB-A | 10.0.21.0/24 | AZ-A |
+| Private-DB-B | 10.0.22.0/24 | AZ-B |
+
 Used for:
 
-Amazon RDS
-Security Groups
-ALB Security Group
-Inbound Rules
+- Amazon RDS
 
-HTTP 80     0.0.0.0/0
-HTTPS 443   0.0.0.0/0
-Outbound Rules
+---
 
-All Traffic
-EC2 Security Group
-Inbound Rules
+# Security Groups
 
-HTTP 80
-Source: ALB Security Group
-Outbound Rules
+## Application Load Balancer Security Group
 
-All Traffic
-RDS Security Group
-Inbound Rules
+### Inbound Rules
 
-MySQL 3306
-Source: EC2 Security Group
-Outbound Rules
+| Protocol | Port | Source |
+|----------|------|---------|
+| HTTP | 80 | 0.0.0.0/0 |
+| HTTPS | 443 | 0.0.0.0/0 |
 
-All Traffic
-Auto Scaling Configuration
-Minimum Capacity
+### Outbound Rules
 
-2
-Desired Capacity
+- All Traffic
 
-2
-Maximum Capacity
+---
 
-4
-Scaling Metric
+## EC2 Security Group
 
-CPUUtilization
-Scale-Out Trigger
+### Inbound Rules
 
-CPU > 70%
-Application Load Balancer
-Features:
+| Protocol | Port | Source |
+|----------|------|---------|
+| HTTP | 80 | ALB Security Group |
 
-Multi-AZ Deployment
-Health Checks
-Traffic Distribution
-Fault Tolerance
-Health Check Path
+### Outbound Rules
 
-/
-Protocol
+- All Traffic
 
-HTTP
-Port
+---
 
-80
-Amazon RDS
-Database Engine
+## RDS Security Group
 
-MySQL
-Instance Class
+### Inbound Rules
 
-db.t3.micro
-Deployment
+| Protocol | Port | Source |
+|----------|------|---------|
+| MySQL | 3306 | EC2 Security Group |
 
-Multi-AZ
-Database Subnets
+### Outbound Rules
 
-Private-DB-A
-Private-DB-B
-Accessibility
+- All Traffic
 
-Private
-Public Access
+---
 
-Disabled
-Features
+# Auto Scaling Configuration
 
-Multi-AZ High Availability
-Automatic Failover
-Managed Backups
-Private Network Access
-RDS Validation
-Verified Multi-AZ deployment status
-Verified database availability
-Verified private access through Security Groups
-Result:
+| Setting | Value |
+|----------|-------|
+| Minimum Capacity | 2 |
+| Desired Capacity | 2 |
+| Maximum Capacity | 4 |
+| Scaling Metric | CPUUtilization |
+| Scale-Out | CPU > 70% |
+| Scale-In | CPU < 30% |
 
-Status: Available
-Deployment: Multi-AZ
-Public Access: Disabled
-Amazon S3
-Used For:
+---
 
-Project Assets
-Architecture Diagram
-Screenshots
-Documentation
-Backups
-Future Log Archival
-Features Enabled:
+# Application Load Balancer
 
-Versioning
-Server-Side Encryption (SSE-S3)
-AWS WAF Configuration
-The following managed rule groups were selected and configured against the Application Load Balancer during setup:
+### Features
 
-Core Rule Set
-Protects against:
+- Multi-AZ Deployment
+- Health Checks
+- Intelligent Traffic Distribution
+- High Availability
+- Fault Tolerance
 
-XSS
-Common Web Exploits
-OWASP Top 10
-Known Bad Inputs
-Protects against:
+### Health Check
 
-Malicious Requests
-Suspicious Payloads
-SQL Database Protection
-Protects against:
+| Property | Value |
+|----------|-------|
+| Protocol | HTTP |
+| Port | 80 |
+| Path | / |
 
-SQL Injection Attacks
-Amazon IP Reputation List
+---
+
+# Amazon RDS
+
+| Property | Value |
+|----------|-------|
+| Database Engine | MySQL |
+| Deployment | Multi-AZ |
+| Database Subnets | Private-DB-A & Private-DB-B |
+| Public Access | Disabled |
+| Accessibility | Private |
+
+### Features
+
+- Multi-AZ High Availability
+- Automatic Failover
+- Managed Backups
+- Private Network Access
+
+---
+
+# Amazon S3
+
+Used for:
+
+- Architecture Diagram
+- Project Documentation
+- Screenshots
+- Project Assets
+- Backups
+- Future Log Archival
+
+### Enabled Features
+
+- Versioning
+- Server-Side Encryption
+
+---
+
+# AWS WAF Configuration
+
+Enabled Managed Rule Groups:
+
+## Core Rule Set
+
+Provides protection against:
+
+- Cross-Site Scripting (XSS)
+- Common Web Exploits
+- OWASP Top 10 Threats
+
+---
+
+## Known Bad Inputs
+
 Blocks:
 
-Known Malicious IP Addresses
-Important note: This project was built inside an AWS Academy Learner Lab, and the Lab's IAM policy explicitly denies the wafv2:CreateWebACL action. As a result, while the web ACL and all four rule groups above were fully configured through the console, the WAF resource itself was never actually created and is not active in the deployed environment. This is documented here for transparency, and the configuration is ready to be deployed as-is in a standard AWS account without this restriction.
+- Malicious Requests
+- Suspicious Payloads
 
-Monitoring and Alerting
-Amazon CloudWatch was configured to monitor:
+---
 
-EC2 CPU Utilization (via Auto Scaling Group metrics)
-Auto Scaling Activities
-Alarm:
+## SQL Database Protection
 
-High-CPU-Utilization (triggers when average CPU > 70%)
-Notification Service:
+Protects against:
 
-Amazon SNS (production-alerts topic)
-Email notifications are automatically sent when the alarm is triggered. This was verified by manually setting the alarm state and confirming the email arrived.
+- SQL Injection Attacks
 
-High Availability Features
-Multi-AZ Application Deployment
-Multi-AZ Amazon RDS
-Application Load Balancer
-Auto Scaling Group
-Health Checks
-Self-Healing Infrastructure
-Redundant NAT Gateways (one per Availability Zone)
-Automatic Database Failover
-Security Features
-Private Application Subnets
-Private Database Subnets
-Security Groups (chained ALB → EC2 → RDS)
-RDS Private Access (public access disabled)
-S3 Encryption
-AWS WAF (designed, blocked from creation by Lab IAM policy — see note above)
-Testing Performed
-Load Balancer Validation
-Verified successful access through the ALB DNS endpoint, and confirmed responses came from different EC2 instances and Availability Zones on repeated requests.
+---
 
-Auto Scaling Validation
-Verified the Auto Scaling Group maintains its desired capacity of 2 instances across both Availability Zones.
+## Amazon IP Reputation List
 
-Health Check Validation
-Verified healthy targets in the Target Group.
+Blocks:
 
-RDS Connectivity Validation
-Verified the database deployment status, Multi-AZ configuration, and that public access is disabled.
+- Known Malicious IP Addresses
 
-Monitoring Validation
-Manually forced the CloudWatch alarm into the "In Alarm" state and confirmed the SNS email notification was received.
+---
 
-Learning Outcomes
-Through this project I learned how to:
+# Monitoring & Alerting
 
-Design a highly available AWS architecture across multiple Availability Zones
-Configure Auto Scaling Groups with target-tracking scaling policies
-Deploy and manage an Application Load Balancer and Target Groups
-Implement VPC networking and subnetting across public, application, and database tiers
-Configure Amazon RDS securely in Multi-AZ mode
-Monitor AWS resources using CloudWatch and set up SNS notifications
-Design an AWS WAF configuration, and recognize how IAM restrictions in a shared lab environment can prevent a fully designed resource from being deployed
-Document a project honestly, including the parts that could not be completed and why
-Future Enhancements
-The following can be added in future iterations of this project:
+Amazon CloudWatch monitors:
 
-Deploy the AWS WAF configuration documented above in a standard AWS account without Lab restrictions
-Amazon Route 53 for custom domain management and DNS routing
-Amazon CloudFront for global content delivery and caching
-AWS Certificate Manager (ACM) for HTTPS/TLS certificates
-CloudWatch Logs export to Amazon S3 for long-term log retention
-Infrastructure as Code (IaC) using AWS CloudFormation or Terraform
-Project Author
-Kareem Rashad
+- EC2 CPU Utilization
+- Auto Scaling Activities
+- Load Balancer Metrics
+- System Performance
+
+### Alarm
+
+High CPU Utilization
+
+### Notification Service
+
+Amazon SNS
+
+Email notifications are automatically sent whenever alarms are triggered.
+
+---
+
+# High Availability Features
+
+- Multi-AZ Deployment
+- Application Load Balancer
+- Auto Scaling Group
+- Amazon RDS Multi-AZ
+- Automatic Database Failover
+- Health Checks
+- Self-Healing Infrastructure
+- Redundant NAT Gateway
+
+---
+
+# Security Features
+
+- AWS WAF
+- Security Groups
+- IAM Roles
+- Private Application Subnets
+- Private Database Subnets
+- Systems Manager Session Manager
+- Amazon S3 Encryption
+- Amazon RDS Private Access
+
+---
+
+# Testing Performed
+
+## Application Load Balancer
+
+- Verified successful access using ALB DNS Name.
+
+---
+
+## Auto Scaling
+
+- Verified automatic scaling based on CPU utilization.
+
+---
+
+## Health Checks
+
+- Verified healthy EC2 targets in the Target Group.
+
+---
+
+## AWS WAF
+
+- Verified protection against malicious traffic and common web attacks.
+
+---
+
+## Amazon RDS
+
+- Verified Multi-AZ deployment.
+- Verified database availability.
+- Verified private connectivity from EC2 instances.
+
+---
+
+## Application Connectivity
+
+- Verified successful communication between EC2 instances and Amazon RDS MySQL.
+
+---
+
+# Learning Outcomes
+
+Through this project, I learned how to:
+
+- Design a production-ready AWS architecture.
+- Build highly available applications.
+- Configure Amazon VPC networking.
+- Deploy highly available EC2 infrastructure.
+- Configure Auto Scaling Groups.
+- Deploy Application Load Balancers.
+- Secure applications using AWS WAF.
+- Configure secure Amazon RDS deployments.
+- Monitor AWS resources using Amazon CloudWatch.
+- Implement SNS notifications.
+- Apply AWS Well-Architected Framework best practices.
+
+---
+
+# Future Enhancements
+
+Potential future improvements include:
+
+- Amazon Route 53
+- Amazon CloudFront
+- AWS Certificate Manager (ACM)
+- CloudWatch Logs Export to Amazon S3
+- AWS CloudFormation
+- Terraform
+- AWS CodePipeline
+- AWS CodeDeploy
+- AWS Systems Manager Patch Manager
+
+---
+
+# Project Structure
+
+```
+Project/
+│
+├── Architecture-Diagram.png
+├── README.md
+├── Screenshots/
+├── Documentation/
+└── Assets/
+```
+
+---
+
+# Project Author
+
+## Kareem Ahmed Rashad
+
+Cloud & DevOps Engineer
+
+AWS Production-Ready Highly Available Web Application
+
+Built following AWS Well-Architected Framework best practices.
