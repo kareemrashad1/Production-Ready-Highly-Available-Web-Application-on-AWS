@@ -12,7 +12,7 @@ The infrastructure is deployed across multiple Availability Zones using Amazon E
 
 ## Architecture Diagram
 
-![Architecture Diagram](images/Architecture-diagram .png)
+![Architecture Diagram](images/Architecture-diagram.png)
 
 # Solution Architecture
 
@@ -77,7 +77,6 @@ The architecture consists of:
 
 ## Security
 
-- AWS WAF
 - Security Groups
 - IAM Roles
 - Systems Manager Session Manager
@@ -258,44 +257,7 @@ Used for:
 
 ---
 
-# AWS WAF Configuration
 
-Enabled Managed Rule Groups:
-
-## Core Rule Set
-
-Provides protection against:
-
-- Cross-Site Scripting (XSS)
-- Common Web Exploits
-- OWASP Top 10 Threats
-
----
-
-## Known Bad Inputs
-
-Blocks:
-
-- Malicious Requests
-- Suspicious Payloads
-
----
-
-## SQL Database Protection
-
-Protects against:
-
-- SQL Injection Attacks
-
----
-
-## Amazon IP Reputation List
-
-Blocks:
-
-- Known Malicious IP Addresses
-
----
 
 # Monitoring & Alerting
 
@@ -333,7 +295,6 @@ Email notifications are automatically sent whenever alarms are triggered.
 
 # Security Features
 
-- AWS WAF
 - Security Groups
 - IAM Roles
 - Private Application Subnets
@@ -364,11 +325,7 @@ Email notifications are automatically sent whenever alarms are triggered.
 
 ---
 
-## AWS WAF
 
-- Verified protection against malicious traffic and common web attacks.
-
----
 
 ## Amazon RDS
 
@@ -418,19 +375,7 @@ Potential future improvements include:
 
 ---
 
-# Project Structure
 
-```
-Project/
-│
-├── Architecture-Diagram.png
-├── README.md
-├── Screenshots/
-├── Documentation/
-└── Assets/
-```
-
----
 
 # Project Author
 
