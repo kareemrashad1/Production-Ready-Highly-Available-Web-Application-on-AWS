@@ -12,7 +12,7 @@ The infrastructure is deployed across multiple Availability Zones using Amazon E
 
 ## Architecture Diagram
 
-![Architecture Diagram](images/Architecture-diagram.png)
+![Architecture Diagram](Architecture-diagram.png)
 
 # Solution Architecture
 
