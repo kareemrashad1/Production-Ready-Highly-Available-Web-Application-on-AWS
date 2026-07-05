@@ -26,7 +26,6 @@ The architecture consists of:
 - Auto Scaling automatically adjusts the number of EC2 instances based on workload.
 - Amazon RDS MySQL provides a highly available managed database.
 - Amazon S3 stores project assets, documentation, architecture diagrams, and backups.
-- AWS WAF protects the application against common web attacks.
 - Amazon CloudWatch continuously monitors infrastructure health.
 - Amazon SNS sends email notifications whenever CloudWatch alarms are triggered.
 
@@ -245,7 +244,6 @@ Used for:
 
 - Architecture Diagram
 - Project Documentation
-- Screenshots
 - Project Assets
 - Backups
 - Future Log Archival
@@ -351,7 +349,7 @@ Through this project, I learned how to:
 - Deploy highly available EC2 infrastructure.
 - Configure Auto Scaling Groups.
 - Deploy Application Load Balancers.
-- Secure applications using AWS WAF.
+- Secure applications.
 - Configure secure Amazon RDS deployments.
 - Monitor AWS resources using Amazon CloudWatch.
 - Implement SNS notifications.
@@ -385,4 +383,4 @@ Cloud & DevOps Engineer
 
 AWS Production-Ready Highly Available Web Application
 
-Built following AWS Well-Architected Framework best practices.
+
